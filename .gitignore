@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtuelle Umgebungen
+.venv/
+venv/
+
+# Daten/Cache (falls du hier später was speicherst)
+data/
+*.log
+
+# macOS
+.DS_Store
