@@ -1,14 +1,109 @@
-# Python
+# ============================
+# Python / Backend
+# ============================
 __pycache__/
-*.pyc
-
-# Virtuelle Umgebungen
-.venv/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+.env
 venv/
+env/
+.venv/
+pip-wheel-metadata/
 
-# Daten/Cache (falls du hier später was speicherst)
-data/
-*.log
+# Local DB files
+data/db/*.sqlite
+data/db/*.db
+data/db/*.sqlite3
 
-# macOS
+# Uploaded note files
+data/notes/*
+!data/notes/.gitkeep
+
+# Logs
+data/logs/*
+!data/logs/.gitkeep
+
+
+# ============================
+# Node / Frontend
+# ============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+.temp/
+.cache/
+.next/
+out/
+
+# Frontend environment
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+
+# ============================
+# AI Model Files
+# ============================
+ai/model/*
+!ai/model/.gitkeep
+
+# HuggingFace caches
+~/.cache/huggingface/
+~/.cache/torch/
+
+# Weights
+*.bin
+*.pt
+*.safetensors
+
+
+# ============================
+# Docker
+# ============================
+**/__pycache__/
+**/*.pid
+**/*.log
+**/*.lock
+
+# Ignore build artifacts
+docker-compose.override.yml
+*~
+
+
+# ============================
+# VS Code / General Editors
+# ============================
+.vscode/
+.history/
+*.swp
+*.swo
+
+# macOS files
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============================
+# Project-Level Temporary Files
+# ============================
+tmp/
+temp/
+.cache/
+*.tmp
+
