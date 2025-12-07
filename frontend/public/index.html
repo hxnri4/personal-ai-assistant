@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Mein persönlicher KI-Assistent</title>
+  <style>
+    :root {
+      --bg-main: #f5f0e8;      /* warmes Beige */
+      --bg-card: #fdfaf5;      /* leicht helleres Beige */
+      --bg-nav: #f0ece6;       /* dezentes Grau-Beige */
+      --border-soft: #d4c9bc;  /* sanfter Rahmen */
+      --text-main: #2f2922;    /* dunkles Braun statt hartem Schwarz */
+      --text-muted: #7b7065;
+      --accent: #f6b7c6;       /* helles Pink */
+      --accent-soft: #fbe1ea;  /* sehr helles Pink */
+      --shadow-soft: 0 18px 35px rgba(0, 0, 0, 0.06);
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at top left, #f9f2e6 0, #f1ece5 40%, #e9e4dd 100%);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .page-frame {
+      width: 100%;
+      max-width: 1120px;
+      margin: 32px 16px;
+      padding: 24px 24px 28px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #fdfaf5, #f3ece3);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(212, 201, 188, 0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      backdrop-filter: blur(6px);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 1px solid rgba(212, 201, 188, 0.6);
+      padding-bottom: 14px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-weight: 500;
+      font-size: 1.9rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tagline {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      align-self: flex-start;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(212, 201, 188, 0.9);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      background: rgba(253, 250, 245, 0.9);
+    }
+
+    /* NAVIGATION */
+
+    #nav-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-nav);
+      border: 1px solid rgba(212, 201, 188, 0.8);
+    }
+
+    .nav-left,
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #nav-main button {
+      position: relative;
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        color var(--transition-fast);
+    }
+
+    #nav-main button::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 6px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      opacity: 0;
+      transform: scaleX(0.6);
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
+    }
+
+    #nav-main button:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(246, 183, 198, 0.25);
+      color: #2f2520;
+    }
+
+    #nav-main button:hover::after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    #nav-main button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Optional: aktiver Button-Zustand (kannst du im JS per Klasse setzen) */
+    #nav-main button.is-active {
+      background: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+      color: #2c2220;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      opacity: 0.9;
+    }
+
+    /* HAUPTBEREICH */
+
+    #app {
+      margin-top: 4px;
+      border-radius: 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      padding: 18px 18px 20px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    /* Platzhalter-Content, falls dein JS noch nichts rendert */
+    .placeholder {
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .placeholder-title {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .placeholder-text {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .placeholder-hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 768px) {
+      .page-frame {
+        margin: 16px 10px;
+        padding: 18px 14px 22px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      #nav-main {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-left,
+      .nav-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      #app {
+        padding: 14px 12px 16px;
+        min-height: 220px;
+      }
+    }
+  </style>
+
+  <link rel="stylesheet" href="./src/css/todos.css" />
+
+</head>
+
+<body>
+  <div class="page-frame">
+    <header>
+      <div class="header-text">
+        <h1>Mein KI-Assistent</h1>
+        <p class="tagline">
+          Ein persönliches Command Center für Kalender, ToDos und Notizen.
+        </p>
+      </div>
+      <span class="badge">Private Edition</span>
+    </header>
+
+    <nav id="nav-main">
+      <div class="nav-left">
+        <span class="nav-label">Bereiche</span>
+        <button data-view="calendar">Kalender</button>
+        <button data-view="todos">ToDos</button>
+        <button data-view="notes">Notizen</button>
+      </div>
+      <div class="nav-right">
+        <span class="nav-label">Assistent</span>
+        <!-- Später für Einstellungen) -->
+      </div>
+    </nav>
+
+  <div id="app"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>

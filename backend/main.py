@@ -1,17 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import json
-from typing import List
+from typing import List, Optional
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# CORS: erlaubt Anfragen z.B. von deiner GitHub-Pages-Seite
+origins = [
+    "*",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],   # GET, POST, PATCH, OPTIONS, ...
     allow_headers=["*"],
 )
 
@@ -44,13 +48,21 @@ class AskRequest(BaseModel):
 
 class TodoItem(BaseModel):
     id: int
-    title: str
-    done: bool = False
+    name: str
+    label: Optional[str] = None
+    description: Optional[str] = None
+    status: str = "open"
 
 class Note(BaseModel):
     id: int
     content: str
 
+class TodoCreate(BaseModel):
+    name: str
+    label: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = "open"
+    
 # Antwort der "KI" (noch Dummy)
 @app.post("/ask")
 def ask(req: AskRequest):
@@ -66,11 +78,35 @@ def get_todos():
     return [TodoItem(**item) for item in raw]
 
 @app.post("/todos", response_model=TodoItem)
-def create_todo(title: str):
+def create_todo(payload: TodoCreate):
     raw = load_list("todos")
     # einfache ID-Generierung
     next_id = max([item["id"] for item in raw], default=0) + 1
-    todo = TodoItem(id=next_id, title=title, done=False)
-    raw.append(todo.dict())
+    
+    todo_data = {
+        "id": next_id,
+        "name": payload.name,
+        "label": payload.label,
+        "description": payload.description,
+        "status": payload.status or "open",
+    }
+    
+    raw.append(todo_data)
+    
     save_list("todos", raw)
-    return todo
+    return TodoItem(**todo_data)
+
+@app.patch("todo/{todo_id}", response_model=TodoItem)
+def update_todo_done(todo_id: int, done: bool = Body(..., embed=True)):
+    """
+    Erwartet JSON: { "done": true } oder { "done": false }
+    """
+    raw = load_list("todos")
+    
+    for item in raw:
+        if item["id"] == todo_id:
+            item["done"] = done
+            save_list("todos", raw)
+            return TodoItem(**item)
+        
+    raise HTTPException(status_code=404, detail="Todo not found")

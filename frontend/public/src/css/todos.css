@@ -1,0 +1,286 @@
+:root {
+  --bg-page: #f6f1e9;        /* warmer Beige-Ton */
+  --bg-board: #fdfaf5;       /* sehr helles Beige */
+  --bg-column: #f9f5ee;      /* leicht dunkleres Beige */
+  --border-soft: #e1d9cf;    /* zarter Rand */
+  --shadow-soft: 0 18px 45px rgba(25, 18, 10, 0.08);
+  --text-main: #3c3227;      /* dunkles, warmes Braun */
+  --text-muted: #8c7f6b;
+  --accent-pink-soft: #f0d5dd;
+  --accent-pink-strong: #d8a8b9;
+  --accent-grey-soft: #e3e0da;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+}
+
+body {
+  background: radial-gradient(circle at top left, #f9f4ec, #f3ecdf);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+}
+
+/* --- Board Layout --- */
+
+.todos-board {
+  max-width: 1120px;
+  margin: 2rem auto;
+  padding: 1.75rem 1.75rem 2rem;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--bg-board), #f9f3ea);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(205, 190, 170, 0.6);
+}
+
+.todos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.todos-header h2 {
+  font-size: 1.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.todos-subtitle {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.todo-primary-btn,
+.todo-secondary-btn {
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.todo-primary-btn {
+  background: linear-gradient(135deg, var(--accent-pink-soft), #f7e3ea);
+  border-color: var(--accent-pink-strong);
+}
+
+.todo-primary-btn:hover {
+  filter: brightness(0.98);
+}
+
+.todo-secondary-btn {
+  background: #f7f2eb;
+  border-color: var(--border-soft);
+}
+
+.todo-secondary-btn:hover {
+  background: #f1ece4;
+}
+
+.todo-btn-icon {
+  font-size: 1.1rem;
+}
+
+/* --- Columns --- */
+
+.todos-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.todos-column {
+  background: var(--bg-column);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem 0.9rem 1rem;
+  border: 1px solid rgba(210, 195, 176, 0.7);
+  box-shadow: 0 10px 30px rgba(28, 20, 12, 0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+}
+
+.todos-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.todos-column-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.todos-column h3 {
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.todos-column-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.todos-column-pill {
+  width: 10px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.pill-open {
+  background: linear-gradient(180deg, #f1e0cd, #e5d3bd);
+}
+
+.pill-progress {
+  background: linear-gradient(180deg, #f4d6df, #e7c1cf);
+}
+
+.pill-done {
+  background: linear-gradient(180deg, #d8e5d7, #c6d9c4);
+}
+
+.todos-column-count {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent-grey-soft);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Bereich für Tickets */
+.todos-column-body {
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed rgba(180, 162, 140, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* --- Modal --- */
+
+.todo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 10, 5, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.todo-modal-backdrop.hidden {
+  display: none;
+}
+
+.todo-modal {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-board);
+  border-radius: 22px;
+  padding: 1.2rem 1.4rem 1.3rem;
+  border: 1px solid rgba(205, 190, 170, 0.85);
+  box-shadow: 0 22px 55px rgba(15, 10, 6, 0.35);
+}
+
+.todo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.todo-modal-header h3 {
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.todo-modal-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.todo-modal-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.1rem 0.2rem;
+  border-radius: 999px;
+}
+
+.todo-modal-close:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.todo-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.todo-field label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.2rem;
+}
+
+.todo-field input,
+.todo-field textarea,
+.todo-field select {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.9rem;
+  background: #fbf7f0;
+  outline: none;
+}
+
+.todo-field input:focus,
+.todo-field textarea:focus,
+.todo-field select:focus {
+  border-color: var(--accent-pink-strong);
+  box-shadow: 0 0 0 1px rgba(216, 168, 185, 0.4);
+}
+
+.todo-field textarea {
+  resize: vertical;
+}
+
+.todo-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+/* Mobile Anpassung */
+@media (max-width: 900px) {
+  .todos-board {
+    margin: 1rem;
+    padding: 1.3rem 1.1rem 1.6rem;
+  }
+
+  .todos-columns {
+    grid-template-columns: 1fr;
+  }
+}
