@@ -296,7 +296,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  cursor: pointer;
+  cursor: grab;
   width: 100%;
   text-align: left;
   font: inherit;
@@ -311,6 +311,40 @@ body {
   box-shadow: 0 14px 30px rgba(28, 20, 12, 0.12);
   background: #fdf8f1;
   border-color: rgba(214, 188, 171, 0.95);
+}
+
+.todo-card:active { cursor: grabbing; }
+.todo-card.is-dragging { opacity: 0.3; }
+.todo-card.is-saving { opacity: 0.6; cursor: wait; }
+.todo-drag-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(35, 27, 21, 0.25);
+  pointer-events: none;
+}
+.page-frame:has(.is-dragging-ticket) {
+  /* Let highlighted columns appear above the page-wide drag shade. */
+  backdrop-filter: none;
+}
+.is-dragging-ticket > .todos-board {
+  position: relative;
+  z-index: 51;
+}
+.is-dragging-ticket .todos-column {
+  border-color: var(--accent-pink-strong);
+  background: var(--bg-board);
+  box-shadow: 0 8px 28px rgba(35, 27, 21, 0.12);
+}
+.is-dragging-ticket .todos-column.is-drop-target {
+  background: #f8eaf0;
+  outline: 2px solid var(--accent-pink-strong);
+  outline-offset: 3px;
+}
+.todo-move-message {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .todo-card-main {

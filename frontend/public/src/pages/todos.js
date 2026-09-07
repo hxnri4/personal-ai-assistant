@@ -16,6 +16,7 @@ export default function todosView() {
         </button>
       </header>
 
+      <p class="todo-move-message" role="status" aria-live="polite" hidden></p>
       <div class="todos-columns">
         <!-- Spalte: Open -->
         <article class="todos-column">
@@ -249,6 +250,87 @@ export default function todosView() {
   const progressCountEl = document.getElementById("todo-count-progress");
   const doneCountEl = document.getElementById("todo-count-done");
 
+  const moveMessage = workspace.querySelector(".todo-move-message");
+  const zones = [
+    { body: openColumn, count: openCountEl, status: "open", empty: "Noch keine offenen Tickets." },
+    { body: progressColumn, count: progressCountEl, status: "in_progress", empty: "Hier ist es noch ruhig." },
+    { body: doneColumn, count: doneCountEl, status: "done", empty: "Noch nichts abgeschlossen." },
+  ];
+  let dragging = null;
+  let savingMove = false;
+  let suppressClick = false;
+  let shade = null;
+
+  function endDrag() {
+    dragging?.card.classList.remove("is-dragging");
+    dragging = null;
+    shade?.remove();
+    shade = null;
+    workspace.classList.remove("is-dragging-ticket");
+    zones.forEach(({ body }) => body.parentElement.classList.remove("is-drop-target"));
+  }
+
+  function refreshCounts() {
+    zones.forEach(({ body, count, empty }) => {
+      body.querySelectorAll(".todos-empty").forEach((el) => el.remove());
+      const total = body.querySelectorAll(".todo-card").length;
+      count.textContent = total;
+      if (!total) renderEmptyState(body, empty);
+    });
+  }
+
+  // Keep the original card in place until PATCH succeeds, so failed or invalid
+  // drops preserve its exact position and require no rollback request.
+  async function moveTicket(card, todo, zone) {
+    savingMove = true;
+    card.classList.add("is-saving");
+    card.setAttribute("aria-busy", "true");
+    moveMessage.hidden = false;
+    moveMessage.textContent = "Status wird gespeichert…";
+    try {
+      const response = await fetch(`http://localhost:8000/todos/${todo.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: zone.status }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const updated = await response.json();
+      Object.assign(todo, updated);
+      zone.body.appendChild(card);
+      refreshCounts();
+      if (selectedId === todo.id) openDetails(todo);
+      moveMessage.textContent = "Status gespeichert.";
+    } catch (error) {
+      console.error(error);
+      moveMessage.textContent = "Status konnte nicht gespeichert werden. Das Ticket bleibt in seiner bisherigen Spalte. Bitte erneut versuchen.";
+    } finally {
+      savingMove = false;
+      card.classList.remove("is-saving");
+      card.removeAttribute("aria-busy");
+    }
+  }
+
+  zones.forEach((zone) => {
+    const column = zone.body.parentElement;
+    column.addEventListener("dragover", (event) => {
+      if (!dragging) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+      zones.forEach(({ body }) => body.parentElement.classList.toggle("is-drop-target", body === zone.body));
+    });
+    column.addEventListener("dragleave", (event) => {
+      if (!column.contains(event.relatedTarget)) column.classList.remove("is-drop-target");
+    });
+    column.addEventListener("drop", (event) => {
+      if (!dragging) return;
+      event.preventDefault();
+      const { card, todo } = dragging;
+      const sameColumn = card.parentElement === zone.body;
+      endDrag();
+      if (!sameColumn) moveTicket(card, todo, zone);
+    });
+  });
+
   function createTicketCard(todo) {
     const card = document.createElement("button");
     card.type = "button";
@@ -257,7 +339,35 @@ export default function todosView() {
     card.setAttribute("aria-controls", "todo-detail");
     card.setAttribute("aria-expanded", String(todo.id === selectedId));
     card.classList.toggle("is-selected", todo.id === selectedId);
-    card.addEventListener("click", () => openDetails(todo));
+    card.addEventListener("click", () => {
+      if (!suppressClick) openDetails(todo);
+    });
+    card.draggable = true;
+    card.addEventListener("dragstart", (event) => {
+      if (savingMove) {
+        event.preventDefault();
+        return;
+      }
+      dragging = { card, todo };
+      suppressClick = true;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", String(todo.id));
+      const bounds = card.getBoundingClientRect();
+      event.dataTransfer.setDragImage(card, event.clientX - bounds.left, event.clientY - bounds.top);
+      shade = document.createElement("div");
+      shade.className = "todo-drag-shade";
+      shade.setAttribute("aria-hidden", "true");
+      document.body.appendChild(shade);
+      workspace.classList.add("is-dragging-ticket");
+      // Let the browser capture the full-opacity card for its cursor preview.
+      requestAnimationFrame(() => {
+        if (dragging?.card === card) card.classList.add("is-dragging");
+      });
+    });
+    card.addEventListener("dragend", () => {
+      endDrag();
+      setTimeout(() => { suppressClick = false; }, 0);
+    });
 
     const main = document.createElement("span");
     main.className = "todo-card-main";

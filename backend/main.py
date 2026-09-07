@@ -1,8 +1,8 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
 import json
-from typing import List, Optional
+from typing import List, Optional, Literal
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -62,6 +62,9 @@ class TodoCreate(BaseModel):
     label: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = "open"
+
+class TodoStatusUpdate(BaseModel):
+    status: Literal["open", "in_progress", "done"]
     
 # Antwort der "KI" (noch Dummy)
 @app.post("/ask")
@@ -96,16 +99,13 @@ def create_todo(payload: TodoCreate):
     save_list("todos", raw)
     return TodoItem(**todo_data)
 
-@app.patch("todo/{todo_id}", response_model=TodoItem)
-def update_todo_done(todo_id: int, done: bool = Body(..., embed=True)):
-    """
-    Erwartet JSON: { "done": true } oder { "done": false }
-    """
+@app.patch("/todos/{todo_id}", response_model=TodoItem)
+def update_todo_status(todo_id: int, payload: TodoStatusUpdate):
     raw = load_list("todos")
     
     for item in raw:
         if item["id"] == todo_id:
-            item["done"] = done
+            item["status"] = payload.status
             save_list("todos", raw)
             return TodoItem(**item)
         
