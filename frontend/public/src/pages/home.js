@@ -119,7 +119,7 @@ export default function homeView() {
       checkbox.style.marginRight = "0.5rem";
 
       const span = document.createElement("span");
-      span.textContent = todo.title;
+      span.textContent = todo.name;
       if (todo.done) {
         span.style.textDecoration = "line-through";
         span.style.color = "#777";

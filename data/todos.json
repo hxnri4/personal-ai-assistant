@@ -47,5 +47,12 @@
     "label": null,
     "description": null,
     "status": "open"
+  },
+  {
+    "id": 8,
+    "name": "Create Details View for ToDo-Tickets",
+    "label": "Frontend",
+    "description": "1. Create Design for this view \n2. Think about possibilities in this view\n3. Connect to Backend",
+    "status": "open"
   }
 ]

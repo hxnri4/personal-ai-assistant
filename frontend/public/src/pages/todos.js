@@ -1,5 +1,7 @@
 export default function todosView() {
+  const app = document.getElementById("app");
   app.innerHTML = `
+    <div class="todos-workspace">
     <section class="todos-board">
       <header class="todos-header">
         <div class="todos-header-text">
@@ -132,7 +134,84 @@ export default function todosView() {
         </div>
       </div>
     </section>
+    <aside class="todo-detail" id="todo-detail" aria-labelledby="todo-detail-name" hidden>
+      <header class="todo-detail-header">
+        <div class="todo-detail-heading">
+          <h2 id="todo-detail-name"></h2>
+          <span class="todo-detail-status" id="todo-detail-status"></span>
+        </div>
+        <button type="button" class="todo-detail-close" aria-label="Close ticket details">✕</button>
+      </header>
+      <div class="todo-detail-labels" id="todo-detail-labels" hidden></div>
+      <section class="todo-detail-description">
+        <h3>Description</h3>
+        <p id="todo-detail-description"></p>
+      </section>
+    </aside>
+    </div>
   `;
+
+  // Non-modal details: the board stays interactive and keeps its current state.
+  const workspace = app.querySelector(".todos-workspace");
+  const detail = app.querySelector("#todo-detail");
+  const detailName = app.querySelector("#todo-detail-name");
+  const detailStatus = app.querySelector("#todo-detail-status");
+  const detailLabels = app.querySelector("#todo-detail-labels");
+  const detailDescription = app.querySelector("#todo-detail-description");
+  let selectedId = null;
+
+  function ticketLabels(todo) {
+    return (Array.isArray(todo.labels) ? todo.labels : [todo.label])
+      .filter((label) => typeof label === "string" && label.trim());
+  }
+
+  function markSelectedCard() {
+    workspace.querySelectorAll(".todo-card").forEach((card) => {
+      const selected = card.dataset.id === String(selectedId);
+      card.classList.toggle("is-selected", selected);
+      card.setAttribute("aria-expanded", String(selected));
+    });
+  }
+
+  function openDetails(todo) {
+    selectedId = todo.id;
+    detailName.textContent = todo.name || "(Ohne Titel)";
+    const statuses = { open: "Open", in_progress: "In Progress", done: "Done" };
+    const status = Object.hasOwn(statuses, todo.status) ? todo.status : "open";
+    detailStatus.textContent = statuses[status];
+    detailStatus.dataset.status = status;
+    detailLabels.replaceChildren();
+    for (const label of ticketLabels(todo)) {
+      const pill = document.createElement("span");
+      pill.className = "todo-card-label-pill";
+      pill.textContent = label;
+      detailLabels.appendChild(pill);
+    }
+    detailLabels.hidden = !detailLabels.childElementCount;
+    const hasDescription = Boolean(todo.description?.trim());
+    detailDescription.textContent = hasDescription ? todo.description : "No description added.";
+    detailDescription.classList.toggle("is-empty", !hasDescription);
+    detail.hidden = false;
+    workspace.classList.add("has-detail");
+    markSelectedCard();
+  }
+
+  function closeDetails() {
+    const selectedCard = [...workspace.querySelectorAll(".todo-card")]
+      .find((card) => card.dataset.id === String(selectedId));
+    detail.hidden = true;
+    workspace.classList.remove("has-detail");
+    selectedId = null;
+    markSelectedCard();
+    selectedCard?.focus({ preventScroll: true });
+  }
+
+  detail.querySelector(".todo-detail-close").addEventListener("click", closeDetails);
+  workspace.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !detail.hidden && modalBackdrop.classList.contains("hidden")) {
+      closeDetails();
+    }
+  });
 
   // --- Nur UI-Logik: Modal öffnen / schließen (ohne Backend) ---
 
@@ -171,25 +250,31 @@ export default function todosView() {
   const doneCountEl = document.getElementById("todo-count-done");
 
   function createTicketCard(todo) {
-    const card = document.createElement("div");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = "todo-card";
+    card.dataset.id = todo.id;
+    card.setAttribute("aria-controls", "todo-detail");
+    card.setAttribute("aria-expanded", String(todo.id === selectedId));
+    card.classList.toggle("is-selected", todo.id === selectedId);
+    card.addEventListener("click", () => openDetails(todo));
 
-    const main = document.createElement("div");
+    const main = document.createElement("span");
     main.className = "todo-card-main";
 
-    const title = document.createElement("div");
+    const title = document.createElement("span");
     title.className = "todo-card-title";
     title.textContent = todo.name || "(Ohne Titel)";
 
     main.appendChild(title);
 
-    if (todo.label) {
-      const labelRow = document.createElement("div");
+    for (const label of ticketLabels(todo)) {
+      const labelRow = document.createElement("span");
       labelRow.className = "todo-card-label-row";
 
       const labelPill = document.createElement("span");
       labelPill.className = "todo-card-label-pill";
-      labelPill.textContent = todo.label;
+      labelPill.textContent = label;
 
       labelRow.appendChild(labelPill);
       main.appendChild(labelRow);
