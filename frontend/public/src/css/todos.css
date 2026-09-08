@@ -13,6 +13,51 @@
   --radius-md: 12px;
 }
 
+.todo-detail-danger {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-soft);
+}
+.todo-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #a34c4c;
+  background: transparent;
+  cursor: pointer;
+}
+.todo-delete-button:hover { background: #f7e8e6; border-color: #dfbaba; }
+.todo-delete-button:focus-visible { outline: 2px solid #a34c4c; outline-offset: 2px; }
+.todo-delete-dialog {
+  width: min(400px, calc(100vw - 2rem));
+  padding: 1.5rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  background: var(--bg-board);
+  color: var(--text-main);
+  box-shadow: var(--shadow-soft);
+}
+.todo-delete-dialog::backdrop { background: rgba(35, 27, 21, 0.25); }
+.todo-delete-dialog h2 { margin: 0 0 0.75rem; font-size: 1.1rem; font-weight: 500; line-height: 1.5; }
+.todo-delete-dialog p, .todo-delete-message { font-size: 0.85rem; color: var(--text-muted); }
+.todo-delete-dialog .todo-delete-error { color: #a34c4c; }
+.todo-delete-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem; }
+.todo-delete-confirm {
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #b36969;
+  background: #f5e0df;
+  color: #8c3434;
+  font: inherit;
+  cursor: pointer;
+}
+.todo-delete-confirm:hover { background: #edcecc; }
+.todo-delete-actions button:disabled { opacity: 0.6; cursor: wait; }
+
 body {
   background: radial-gradient(circle at top left, #f9f4ec, #f3ecdf);
   color: var(--text-main);

@@ -150,7 +150,24 @@ export default function todosView() {
         <button type="button" class="todo-secondary-btn todo-description-save" hidden>Save</button>
         <p id="todo-description-message" role="status" aria-live="polite"></p>
       </section>
+      <footer class="todo-detail-danger">
+        <button type="button" class="todo-delete-button" aria-label="Delete ticket" title="Delete ticket">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
+          </svg>
+        </button>
+        <p class="todo-delete-message" role="status"></p>
+      </footer>
     </aside>
+    <dialog class="todo-delete-dialog" aria-labelledby="todo-delete-question" aria-describedby="todo-delete-warning">
+      <h2 id="todo-delete-question">Do you really want to delete this ticket?</h2>
+      <p id="todo-delete-warning">This permanently removes the ticket.</p>
+      <p class="todo-delete-error" role="alert"></p>
+      <div class="todo-delete-actions">
+        <button type="button" class="todo-secondary-btn" data-delete-no autofocus>No</button>
+        <button type="button" class="todo-delete-confirm" data-delete-yes>Yes</button>
+      </div>
+    </dialog>
     </div>
   `;
 
@@ -169,6 +186,62 @@ export default function todosView() {
   const descriptionErrors = new Map();
   let selectedTodo = null;
   let selectedId = null;
+  const deleteButton = workspace.querySelector(".todo-delete-button");
+  const deleteMessage = workspace.querySelector(".todo-delete-message");
+  const deleteDialog = workspace.querySelector(".todo-delete-dialog");
+  const deleteError = deleteDialog.querySelector(".todo-delete-error");
+  const deleteNo = deleteDialog.querySelector("[data-delete-no]");
+  const deleteYes = deleteDialog.querySelector("[data-delete-yes]");
+  let deleting = false;
+  let deleteTargetId = null;
+
+  deleteButton.addEventListener("click", () => {
+    if (!selectedTodo) return;
+    if (savingMove || descriptionSaving.size) {
+      deleteMessage.textContent = "Please wait for the current save to finish.";
+      return;
+    }
+    deleteTargetId = selectedId;
+    deleteMessage.textContent = "";
+    deleteError.textContent = "";
+    deleteDialog.showModal();
+    deleteNo.focus();
+  });
+  deleteNo.addEventListener("click", () => deleteDialog.close());
+  deleteDialog.addEventListener("cancel", (event) => {
+    if (deleting) event.preventDefault();
+  });
+  deleteYes.addEventListener("click", async () => {
+    if (deleting || deleteTargetId === null) return;
+    const id = deleteTargetId;
+    deleting = true;
+    deleteNo.disabled = true;
+    deleteYes.disabled = true;
+    deleteYes.textContent = "Deleting…";
+    deleteError.textContent = "";
+    try {
+      const response = await fetch(`http://localhost:8000/todos/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      // Remove local state only after the backend confirms permanent deletion.
+      deleteDialog.close();
+      closeDetails();
+      workspace.querySelectorAll(".todo-card").forEach((card) => {
+        if (card.dataset.id === String(id)) card.remove();
+      });
+      descriptionDrafts.delete(id);
+      descriptionErrors.delete(id);
+      refreshCounts();
+      addButton.focus({ preventScroll: true });
+    } catch (error) {
+      console.error(error);
+      deleteError.textContent = "Could not delete the ticket. Please try again.";
+    } finally {
+      deleting = false;
+      deleteNo.disabled = false;
+      deleteYes.disabled = false;
+      deleteYes.textContent = "Yes";
+    }
+  });
 
   function refreshDescriptionEditor() {
     const saving = descriptionSaving.has(selectedId);
@@ -236,6 +309,7 @@ export default function todosView() {
   }
 
   function openDetails(todo) {
+    deleteMessage.textContent = "";
     selectedId = todo.id;
     selectedTodo = todo;
     detailName.textContent = todo.name || "(Ohne Titel)";
@@ -271,7 +345,7 @@ export default function todosView() {
 
   detail.querySelector(".todo-detail-close").addEventListener("click", closeDetails);
   workspace.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !detail.hidden && modalBackdrop.classList.contains("hidden")) {
+    if (event.key === "Escape" && !deleteDialog.open && !detail.hidden && modalBackdrop.classList.contains("hidden")) {
       closeDetails();
     }
   });

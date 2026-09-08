@@ -1,54 +1,5 @@
 [
   {
-    "id": 1,
-    "name": "Test",
-    "label": null,
-    "description": null,
-    "status": "open"
-  },
-  {
-    "id": 2,
-    "name": "Test 1",
-    "label": "Test",
-    "description": "Hallo, dass ist in Test",
-    "status": "in_progress"
-  },
-  {
-    "id": 3,
-    "name": "test",
-    "label": null,
-    "description": null,
-    "status": "open"
-  },
-  {
-    "id": 4,
-    "name": "test",
-    "label": null,
-    "description": null,
-    "status": "open"
-  },
-  {
-    "id": 5,
-    "name": "test 2",
-    "label": null,
-    "description": null,
-    "status": "open"
-  },
-  {
-    "id": 6,
-    "name": "test 3",
-    "label": null,
-    "description": null,
-    "status": "open"
-  },
-  {
-    "id": 7,
-    "name": "test 4",
-    "label": null,
-    "description": null,
-    "status": "open"
-  },
-  {
     "id": 8,
     "name": "Create Details View for ToDo-Tickets",
     "label": "Frontend",
@@ -66,8 +17,8 @@
     "id": 10,
     "name": "Add Ticket deletion Feature",
     "label": "Frontend",
-    "description": null,
-    "status": "in_progress"
+    "description": "## Goal\n\nAllow users to permanently delete a ToDo ticket directly from the ticket detail view.\n\nThe goal is to provide a clear and controlled way to remove tasks that are no longer needed.\n\nWhen a ticket is deleted, it should:\n\n* disappear from the ToDo board\n* disappear from the detail view\n* be permanently removed from the backend\n* be removed from `todos.json`\n\n## User Experience\n\nWhen a ticket is open in the detailed view on the right side of the application, the user should see a **red trashcan icon** at the bottom of the panel.\n\nThe delete action should be visually separated from the normal ticket content so that it is clearly perceived as a destructive action.\n\nThe user should not be able to accidentally delete a ticket with a single click.\n\n## Delete Action\n\nAt the bottom of the detail panel, display a red trashcan icon.\n\nWhen the user clicks the trashcan:\n\n* the ticket should not be deleted immediately\n* a small confirmation popup should appear\n* the popup should ask whether the user really wants to permanently delete the ticket\n\nExample message:\n\n“Do you really want to delete this ticket?”\n\nThe popup should provide two options:\n\n* **Yes**\n* **No**\n\n## Confirmation Behaviour\n\n### No\n\nIf the user selects **No**:\n\n* the popup closes\n* no backend request is made\n* the ticket remains unchanged\n* the detail view stays open\n\n### Yes\n\nIf the user selects **Yes**:\n\n1. the frontend sends a delete request to the backend\n2. the backend identifies the ticket by its ID\n3. the ticket is removed from `todos.json`\n4. the ticket detail panel closes\n5. the ticket disappears from the board\n6. the affected column count is updated\n\nThe application should not require a full page reload.\n\n## Backend Integration\n\nThe backend should provide an endpoint for deleting a ticket by ID.\n\nConceptually:\n\n`DELETE /todos/{todo_id}`\n\nExample:\n\n`DELETE /todos/12`\n\nThe backend should:\n\n1. load the current ToDo list\n2. find the ticket with the matching ID\n3. remove the ticket from the list\n4. save the updated list back to `todos.json`\n5. return a successful response\n\nIf the requested ticket does not exist, the backend should return an appropriate error such as `404 Not Found`.\n\n## Error Behaviour\n\nIf deletion fails:\n\n* the ticket must remain visible\n* the detail panel should stay open\n* the user should receive a subtle error message\n* the frontend should not remove the ticket before the backend confirms successful deletion\n\nThis prevents the frontend and backend from becoming inconsistent.\n\n## Design Requirements\n\nThe delete functionality should match the existing ToDo detail view.\n\nThe trashcan icon should:\n\n* appear at the bottom of the detail panel\n* use a clear but restrained red tone\n* remain minimalistic\n* not visually dominate the normal task information\n\nThe confirmation popup should:\n\n* be small and focused\n* use the same beige and light-grey visual language as the application\n* use red only to emphasize the destructive action\n* contain no unnecessary information\n\nThe **Yes** action should visually communicate that it is destructive, while **No** should remain neutral.\n\n## Interaction\n\n### Open Confirmation\n\nClicking the trashcan icon opens the confirmation popup.\n\n### Cancel\n\nClicking **No** closes the popup without changing the ticket.\n\n### Confirm\n\nClicking **Yes** permanently deletes the ticket.\n\n### After Deletion\n\nAfter a successful deletion:\n\n* the confirmation popup closes\n* the detail panel closes\n* the ticket is removed from the board\n* the column counts are refreshed\n\n## Acceptance Criteria\n\n* A red trashcan icon is visible at the bottom of the ticket detail view.\n* Clicking the trashcan does not immediately delete the ticket.\n* A confirmation popup appears.\n* The popup asks the user to confirm the deletion.\n* The popup provides Yes and No options.\n* Selecting No closes the popup without changing anything.\n* Selecting Yes sends a delete request to the backend.\n* The correct ticket is identified using its ID.\n* The ticket is permanently removed from `todos.json`.\n* The deleted ticket is no longer visible on the ToDo board.\n* The detail panel closes after successful deletion.\n* Column ticket counts update after deletion.\n* Reloading the application does not restore the deleted ticket.\n* A failed backend deletion does not remove the ticket from the frontend.\n* The delete interaction fits the existing visual design.\n",
+    "status": "done"
   },
   {
     "id": 11,
@@ -75,5 +26,19 @@
     "label": null,
     "description": "## Goal\n\nAllow users to edit the description of a ToDo directly from the ticket detail view.\n\nThe goal is to make the detail panel not only a place to review ticket information, but also a place where the user can maintain and update the task without leaving the current context.\n\n## User Experience\n\nWhen a ticket is open in the detailed view on the right side of the application, the description section should be directly editable.\n\nThe user should be able to click into the description area and start editing the text without navigating to a separate edit page.\n\nThe interaction should feel lightweight and natural, similar to editing a note.\n\n## Description Editor\n\nThe description section should behave like a simple text editor.\n\nWhen the user clicks into the description field:\n\n* the field becomes editable\n* the user can enter new text\n* the user can modify existing text\n* the user can remove text\n* line breaks should be supported\n* the editor should provide enough space for longer descriptions\n\nIf the ticket currently has no description, the field should show a subtle placeholder such as:\n\n“Add a description…”\n\nClicking the placeholder should activate the editor.\n\n## Edit Mode\n\nThe visual change between read mode and edit mode should remain minimal.\n\nWhen editing:\n\n* the description area should receive a subtle border or background change\n* the active field should fit the existing beige, light-grey and light-pink visual language\n* the editor should not make the detail view feel like a separate form\n* the rest of the detail panel should remain visible\n\nThe user should still be able to see the task name, status and labels while editing the description.\n\n## Saving Changes\n\nOnce the user has made changes, there should be a clear way to save them.\n\nA small **Save** action should appear when the description has been changed.\n\nWhen the user saves:\n\n1. the updated description should be sent to the backend\n2. the corresponding ToDo in `todos.json` should be updated\n3. the new description should remain visible in the detail view\n4. the editor should return to its normal read state\n\nThe update should happen without reloading the whole application.\n\n## Backend Integration\n\nThe frontend must be able to update the `description` field of an existing ticket using its ID.\n\nThe existing ticket update endpoint can be extended or reused.\n\nConceptually:\n\n`PATCH /todos/{todo_id}`\n\nExample request:\n\n```json\n{\n  \"description\": \"Updated description of the task.\"\n}\n```\n\nThe backend should:\n\n1. find the ticket by its ID\n2. update the `description`\n3. persist the change in `todos.json`\n4. return the updated ticket\n\nOther ticket fields should remain unchanged.\n\n## Error Behaviour\n\nIf saving the description fails:\n\n* the user should receive a subtle error message\n* the entered text should remain in the editor\n* the description should not silently revert or disappear\n* the user should be able to try saving again\n\n## Interaction\n\n### Start Editing\n\nClicking the description field switches it into edit mode.\n\n### Edit\n\nThe user can freely add, remove or modify text.\n\n### Save\n\nClicking **Save** persists the updated description in the backend.\n\n### No Changes\n\nIf the user clicks into the description but makes no changes, no backend update should be required.\n\n## Design Requirements\n\nThe editor should remain consistent with the existing ToDo detail view:\n\n* minimalistic\n* modern\n* beige and light-grey base tones\n* subtle light-pink accents\n* soft borders\n* rounded corners\n* clean spacing\n* no unnecessary editor controls\n\nFor this first version, the description editor only needs to support plain text. Rich-text functionality such as bold, lists or links is not required.\n\n## Acceptance Criteria\n\n* A user can click the description in the ticket detail view.\n* The description becomes editable without navigating away.\n* Existing description text can be changed.\n* New text can be entered when no description exists.\n* Multi-line text is supported.\n* A Save action becomes available after the content changes.\n* Saving updates the correct ticket in the backend.\n* The updated description is persisted in `todos.json`.\n* The updated text remains visible after reopening the ticket.\n* Reloading the application keeps the saved description.\n* Other ticket fields are not modified when saving the description.\n* A failed save does not remove the user's entered text.\n* The editor visually fits the existing ToDo detail panel.\n",
     "status": "done"
+  },
+  {
+    "id": 12,
+    "name": "Find a possibility to easy change the language",
+    "label": "Idea",
+    "description": null,
+    "status": "open"
+  },
+  {
+    "id": 13,
+    "name": "Change the Label Logic",
+    "label": "Idea",
+    "description": "If a label exist, it should be stored somewhere. So that when I start typing in the table field it will first search for existing labels and only if nothing exists creates a new one\n\nEach label should get a random colour but the colour should stick with this label than \n\nI can give the ticket as many tables as I want to give and I see all labels not just in the detailed view but also in the list view",
+    "status": "open"
   }
 ]

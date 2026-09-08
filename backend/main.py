@@ -115,3 +115,13 @@ def update_todo(todo_id: int, payload: TodoUpdate):
             return TodoItem(**item)
         
     raise HTTPException(status_code=404, detail="Todo not found")
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int):
+    raw = load_list("todos")
+    for index, item in enumerate(raw):
+        if item["id"] == todo_id:
+            del raw[index]
+            save_list("todos", raw)
+            return {"deleted": todo_id}
+    raise HTTPException(status_code=404, detail="Todo not found")
