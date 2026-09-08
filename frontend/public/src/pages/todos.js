@@ -1,3 +1,5 @@
+import { t, translate, setText } from "../i18n/i18n.js";
+
 export default function todosView() {
   const app = document.getElementById("app");
   app.innerHTML = `
@@ -5,14 +7,12 @@ export default function todosView() {
     <section class="todos-board">
       <header class="todos-header">
         <div class="todos-header-text">
-          <h2>ToDos</h2>
-          <p class="todos-subtitle">
-            Organisiere deine Aufgaben wie in einem feinen Board – ruhig, klar, geordnet.
-          </p>
+          <h2 data-i18n="nav.todos"></h2>
+          <p class="todos-subtitle" data-i18n="board.subtitle"></p>
         </div>
         <button id="todo-add-button" class="todo-primary-btn">
           <span class="todo-btn-icon">＋</span>
-          Neues Ticket
+          <span data-i18n="board.new"></span>
         </button>
       </header>
 
@@ -24,8 +24,8 @@ export default function todosView() {
             <div class="todos-column-title-wrap">
               <span class="todos-column-pill pill-open"></span>
               <div>
-                <h3>Open</h3>
-                <p class="todos-column-subtitle">Ideen & ungeplante Arbeit</p>
+                <h3 data-i18n="status.open"></h3>
+                <p class="todos-column-subtitle" data-i18n="board.openSubtitle"></p>
               </div>
             </div>
             <span class="todos-column-count" id="todo-count-open">0</span>
@@ -41,8 +41,8 @@ export default function todosView() {
             <div class="todos-column-title-wrap">
               <span class="todos-column-pill pill-progress"></span>
               <div>
-                <h3>In Progress</h3>
-                <p class="todos-column-subtitle">aktuelle Arbeit</p>
+                <h3 data-i18n="status.in_progress"></h3>
+                <p class="todos-column-subtitle" data-i18n="board.progressSubtitle"></p>
               </div>
             </div>
             <span class="todos-column-count" id="todo-count-progress">0</span>
@@ -58,8 +58,8 @@ export default function todosView() {
             <div class="todos-column-title-wrap">
               <span class="todos-column-pill pill-done"></span>
               <div>
-                <h3>Done</h3>
-                <p class="todos-column-subtitle">Abgeschlossene Aufgaben</p>
+                <h3 data-i18n="status.done"></h3>
+                <p class="todos-column-subtitle" data-i18n="board.doneSubtitle"></p>
               </div>
             </div>
             <span class="todos-column-count" id="todo-count-done">0</span>
@@ -75,61 +75,55 @@ export default function todosView() {
         <div class="todo-modal">
           <header class="todo-modal-header">
             <div>
-              <h3>Neues Ticket</h3>
-              <p class="todo-modal-subtitle">
-                Erstelle eine Aufgabe mit Titel, optionalem Label & kurzer Notiz.
-              </p>
+              <h3 data-i18n="board.new"></h3>
+              <p class="todo-modal-subtitle" data-i18n="board.createSubtitle"></p>
             </div>
-            <button class="todo-modal-close" id="todo-modal-close" aria-label="Modal schließen">
+            <button class="todo-modal-close" id="todo-modal-close" data-i18n-aria-label="common.closeModal">
               ✕
             </button>
           </header>
 
           <form id="todo-create-form" class="todo-modal-form">
             <div class="todo-field">
-              <label for="todo-title-input">Titel</label>
+              <label for="todo-title-input" data-i18n="ticket.name"></label>
               <input
                 id="todo-title-input"
                 type="text"
-                placeholder="z.B. 'API für ToDos erweitern'"
+                data-i18n-placeholder="ticket.namePlaceholder"
                 required
               />
             </div>
 
             <div class="todo-field">
-              <label for="todo-label-input">Label (optional)</label>
+              <label for="todo-label-input" data-i18n="ticket.labelOptional"></label>
               <input
                 id="todo-label-input"
                 type="text"
-                placeholder="z.B. 'Backend', 'Bug', 'Idea'"
+                data-i18n-placeholder="ticket.labelPlaceholder"
               />
             </div>
 
             <div class="todo-field">
-              <label for="todo-notes-input">Kurze Notiz (optional)</label>
+              <label for="todo-notes-input" data-i18n="ticket.noteOptional"></label>
               <textarea
                 id="todo-notes-input"
                 rows="3"
-                placeholder="Kontext, nächste Schritte oder Randnotizen…"
+                data-i18n-placeholder="ticket.notePlaceholder"
               ></textarea>
             </div>
 
             <div class="todo-field">
-              <label for="todo-status-input">Status</label>
+              <label for="todo-status-input" data-i18n="ticket.status"></label>
               <select id="todo-status-input">
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Done</option>
+                <option value="open" data-i18n="status.open"></option>
+                <option value="in_progress" data-i18n="status.in_progress"></option>
+                <option value="done" data-i18n="status.done"></option>
               </select>
             </div>
 
             <div class="todo-modal-footer">
-              <button type="button" class="todo-secondary-btn" id="todo-modal-cancel">
-                Abbrechen
-              </button>
-              <button type="submit" class="todo-primary-btn">
-                Ticket anlegen
-              </button>
+              <button type="button" class="todo-secondary-btn" id="todo-modal-cancel" data-i18n="common.cancel"></button>
+              <button type="submit" class="todo-primary-btn" data-i18n="board.create"></button>
             </div>
           </form>
         </div>
@@ -141,17 +135,17 @@ export default function todosView() {
           <h2 id="todo-detail-name"></h2>
           <span class="todo-detail-status" id="todo-detail-status"></span>
         </div>
-        <button type="button" class="todo-detail-close" aria-label="Close ticket details">✕</button>
+        <button type="button" class="todo-detail-close" data-i18n-aria-label="ticket.closeDetails">✕</button>
       </header>
       <div class="todo-detail-labels" id="todo-detail-labels" hidden></div>
       <section class="todo-detail-description">
-        <h3><label for="todo-detail-description">Description</label></h3>
-        <textarea id="todo-detail-description" rows="8" placeholder="Add a description…" aria-describedby="todo-description-message"></textarea>
-        <button type="button" class="todo-secondary-btn todo-description-save" hidden>Save</button>
+        <h3><label for="todo-detail-description" data-i18n="ticket.description"></label></h3>
+        <textarea id="todo-detail-description" rows="8" data-i18n-placeholder="ticket.addDescription" aria-describedby="todo-description-message"></textarea>
+        <button type="button" class="todo-secondary-btn todo-description-save" hidden data-i18n="common.save"></button>
         <p id="todo-description-message" role="status" aria-live="polite"></p>
       </section>
       <footer class="todo-detail-danger">
-        <button type="button" class="todo-delete-button" aria-label="Delete ticket" title="Delete ticket">
+        <button type="button" class="todo-delete-button" data-i18n-aria-label="ticket.delete" data-i18n-title="ticket.delete">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
           </svg>
@@ -160,16 +154,18 @@ export default function todosView() {
       </footer>
     </aside>
     <dialog class="todo-delete-dialog" aria-labelledby="todo-delete-question" aria-describedby="todo-delete-warning">
-      <h2 id="todo-delete-question">Do you really want to delete this ticket?</h2>
-      <p id="todo-delete-warning">This permanently removes the ticket.</p>
+      <h2 id="todo-delete-question" data-i18n="ticket.deleteQuestion"></h2>
+      <p id="todo-delete-warning" data-i18n="ticket.deleteWarning"></p>
       <p class="todo-delete-error" role="alert"></p>
       <div class="todo-delete-actions">
-        <button type="button" class="todo-secondary-btn" data-delete-no autofocus>No</button>
-        <button type="button" class="todo-delete-confirm" data-delete-yes>Yes</button>
+        <button type="button" class="todo-secondary-btn" data-delete-no autofocus data-i18n="common.no"></button>
+        <button type="button" class="todo-delete-confirm" data-delete-yes data-i18n="common.yes"></button>
       </div>
     </dialog>
     </div>
   `;
+
+  translate(app);
 
   // Non-modal details: the board stays interactive and keeps its current state.
   const workspace = app.querySelector(".todos-workspace");
@@ -198,12 +194,12 @@ export default function todosView() {
   deleteButton.addEventListener("click", () => {
     if (!selectedTodo) return;
     if (savingMove || descriptionSaving.size) {
-      deleteMessage.textContent = "Please wait for the current save to finish.";
+      setText(deleteMessage, "ticket.waitSave");
       return;
     }
     deleteTargetId = selectedId;
-    deleteMessage.textContent = "";
-    deleteError.textContent = "";
+    setText(deleteMessage, null);
+    setText(deleteError, null);
     deleteDialog.showModal();
     deleteNo.focus();
   });
@@ -217,8 +213,8 @@ export default function todosView() {
     deleting = true;
     deleteNo.disabled = true;
     deleteYes.disabled = true;
-    deleteYes.textContent = "Deleting…";
-    deleteError.textContent = "";
+    setText(deleteYes, "ticket.deleting");
+    setText(deleteError, null);
     try {
       const response = await fetch(`http://localhost:8000/todos/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -234,12 +230,12 @@ export default function todosView() {
       addButton.focus({ preventScroll: true });
     } catch (error) {
       console.error(error);
-      deleteError.textContent = "Could not delete the ticket. Please try again.";
+      setText(deleteError, "ticket.deleteError");
     } finally {
       deleting = false;
       deleteNo.disabled = false;
       deleteYes.disabled = false;
-      deleteYes.textContent = "Yes";
+      setText(deleteYes, "common.yes");
     }
   });
 
@@ -247,10 +243,10 @@ export default function todosView() {
     const saving = descriptionSaving.has(selectedId);
     descriptionSave.hidden = !descriptionDrafts.has(selectedId);
     descriptionSave.disabled = saving;
-    descriptionSave.textContent = saving ? "Saving…" : "Save";
+    setText(descriptionSave, saving ? "common.saving" : "common.save");
     detailDescription.readOnly = saving;
     detailDescription.setAttribute("aria-busy", String(saving));
-    descriptionMessage.textContent = descriptionErrors.get(selectedId) || "";
+    setText(descriptionMessage, descriptionErrors.get(selectedId) || null);
   }
 
   detailDescription.addEventListener("input", () => {
@@ -288,7 +284,7 @@ export default function todosView() {
       }
     } catch (error) {
       console.error(error);
-      descriptionErrors.set(todo.id, "Could not save description. Your text is kept here. Please try again.");
+      descriptionErrors.set(todo.id, "ticket.descriptionError");
     } finally {
       descriptionSaving.delete(todo.id);
       if (selectedId === todo.id) refreshDescriptionEditor();
@@ -309,13 +305,14 @@ export default function todosView() {
   }
 
   function openDetails(todo) {
-    deleteMessage.textContent = "";
+    setText(deleteMessage, null);
     selectedId = todo.id;
     selectedTodo = todo;
-    detailName.textContent = todo.name || "(Ohne Titel)";
-    const statuses = { open: "Open", in_progress: "In Progress", done: "Done" };
-    const status = Object.hasOwn(statuses, todo.status) ? todo.status : "open";
-    detailStatus.textContent = statuses[status];
+    setText(detailName, todo.name ? null : "ticket.untitled");
+    if (todo.name) detailName.textContent = todo.name;
+    const statuses = ["open", "in_progress", "done"];
+    const status = statuses.includes(todo.status) ? todo.status : "open";
+    setText(detailStatus, `status.${status}`);
     detailStatus.dataset.status = status;
     detailLabels.replaceChildren();
     for (const label of ticketLabels(todo)) {
@@ -388,9 +385,9 @@ export default function todosView() {
 
   const moveMessage = workspace.querySelector(".todo-move-message");
   const zones = [
-    { body: openColumn, count: openCountEl, status: "open", empty: "Noch keine offenen Tickets." },
-    { body: progressColumn, count: progressCountEl, status: "in_progress", empty: "Hier ist es noch ruhig." },
-    { body: doneColumn, count: doneCountEl, status: "done", empty: "Noch nichts abgeschlossen." },
+    { body: openColumn, count: openCountEl, status: "open", empty: "board.emptyOpen" },
+    { body: progressColumn, count: progressCountEl, status: "in_progress", empty: "board.emptyProgress" },
+    { body: doneColumn, count: doneCountEl, status: "done", empty: "board.emptyDone" },
   ];
   let dragging = null;
   let savingMove = false;
@@ -422,7 +419,7 @@ export default function todosView() {
     card.classList.add("is-saving");
     card.setAttribute("aria-busy", "true");
     moveMessage.hidden = false;
-    moveMessage.textContent = "Status wird gespeichert…";
+    setText(moveMessage, "board.savingStatus");
     try {
       const response = await fetch(`http://localhost:8000/todos/${todo.id}`, {
         method: "PATCH",
@@ -435,10 +432,10 @@ export default function todosView() {
       zone.body.appendChild(card);
       refreshCounts();
       if (selectedId === todo.id) openDetails(todo);
-      moveMessage.textContent = "Status gespeichert.";
+      setText(moveMessage, "board.statusSaved");
     } catch (error) {
       console.error(error);
-      moveMessage.textContent = "Status konnte nicht gespeichert werden. Das Ticket bleibt in seiner bisherigen Spalte. Bitte erneut versuchen.";
+      setText(moveMessage, "board.statusError");
     } finally {
       savingMove = false;
       card.classList.remove("is-saving");
@@ -510,7 +507,8 @@ export default function todosView() {
 
     const title = document.createElement("span");
     title.className = "todo-card-title";
-    title.textContent = todo.name || "(Ohne Titel)";
+    if (todo.name) title.textContent = todo.name;
+    else setText(title, "ticket.untitled");
 
     main.appendChild(title);
 
@@ -530,10 +528,10 @@ export default function todosView() {
     return card;
   }
 
-  function renderEmptyState(columnEl, text) {
+  function renderEmptyState(columnEl, key) {
     const p = document.createElement("p");
     p.className = "todos-empty";
-    p.textContent = text;
+    setText(p, key);
     columnEl.appendChild(p);
   }
 
@@ -584,19 +582,20 @@ export default function todosView() {
 
       // Leere-Spalten-Text
       if (openCount === 0) {
-        renderEmptyState(openColumn, "Noch keine offenen Tickets.");
+        renderEmptyState(openColumn, "board.emptyOpen");
       }
       if (progressCount === 0) {
-        renderEmptyState(progressColumn, "Hier ist es noch ruhig.");
+        renderEmptyState(progressColumn, "board.emptyProgress");
       }
       if (doneCount === 0) {
-        renderEmptyState(doneColumn, "Noch nichts abgeschlossen.");
+        renderEmptyState(doneColumn, "board.emptyDone");
       }
     } catch (err) {
       console.error(err);
-      openColumn.innerHTML = "<p class='todos-error'>Tickets konnten nicht geladen werden.</p>";
-      progressColumn.innerHTML = "<p class='todos-error'>Tickets konnten nicht geladen werden.</p>";
-      doneColumn.innerHTML = "<p class='todos-error'>Tickets konnten nicht geladen werden.</p>";
+      openColumn.innerHTML = '<p class="todos-error" data-i18n="board.loadError"></p>';
+      progressColumn.innerHTML = '<p class="todos-error" data-i18n="board.loadError"></p>';
+      doneColumn.innerHTML = '<p class="todos-error" data-i18n="board.loadError"></p>';
+      translate(workspace);
       openCountEl.textContent = "–";
       progressCountEl.textContent = "–";
       doneCountEl.textContent = "–";
@@ -644,7 +643,7 @@ export default function todosView() {
       closeModal();
     } catch (err) {
       console.error(err);
-      alert("Ticket konnte nicht angelegt werden.");
+      alert(t("board.createError"));
     }
   });
 

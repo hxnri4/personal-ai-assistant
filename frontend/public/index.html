@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-  <title>Mein persönlicher KI-Assistent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="app.title"></title>
   <style>
     :root {
       --bg-main: #f5f0e8;      /* warmes Beige */
@@ -91,6 +92,31 @@
       letter-spacing: 0.14em;
       color: var(--text-muted);
       background: rgba(253, 250, 245, 0.9);
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    #language-selector {
+      padding: 5px 8px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-pill);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    #language-selector:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     /* NAVIGATION */
@@ -267,28 +293,31 @@
   <div class="page-frame">
     <header>
       <div class="header-text">
-        <h1>Mein KI-Assistent</h1>
-        <p class="tagline">
-          Ein persönliches Command Center für Kalender, ToDos und Notizen.
-        </p>
+        <h1 data-i18n="app.heading"></h1>
+        <p class="tagline" data-i18n="app.tagline"></p>
       </div>
-      <span class="badge">Private Edition</span>
+      <div class="header-tools">
+        <span class="badge" data-i18n="app.edition"></span>
+        <select id="language-selector" data-i18n-aria-label="app.language" data-i18n-title="app.language"></select>
+      </div>
     </header>
 
     <nav id="nav-main">
       <div class="nav-left">
-        <span class="nav-label">Bereiche</span>
-        <button data-view="calendar">Kalender</button>
-        <button data-view="todos">ToDos</button>
-        <button data-view="notes">Notizen</button>
+        <span class="nav-label" data-i18n="nav.sections"></span>
+        <button data-view="home" data-i18n="nav.home"></button>
+        <button data-view="calendar" data-i18n="nav.calendar"></button>
+        <button data-view="todos" data-i18n="nav.todos"></button>
+        <button data-view="notes" data-i18n="nav.notes"></button>
       </div>
       <div class="nav-right">
-        <span class="nav-label">Assistent</span>
+        <span class="nav-label" data-i18n="nav.assistant"></span>
         <!-- Später für Einstellungen) -->
       </div>
     </nav>
 
-  <div id="app"></div>
+    <div id="app"></div>
+  </div>
 
   <script type="module" src="./src/main.js"></script>
 </body>
