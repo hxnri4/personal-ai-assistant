@@ -63,8 +63,9 @@ class TodoCreate(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = "open"
 
-class TodoStatusUpdate(BaseModel):
-    status: Literal["open", "in_progress", "done"]
+class TodoUpdate(BaseModel):
+    status: Optional[Literal["open", "in_progress", "done"]] = None
+    description: Optional[str] = None
     
 # Antwort der "KI" (noch Dummy)
 @app.post("/ask")
@@ -100,13 +101,17 @@ def create_todo(payload: TodoCreate):
     return TodoItem(**todo_data)
 
 @app.patch("/todos/{todo_id}", response_model=TodoItem)
-def update_todo_status(todo_id: int, payload: TodoStatusUpdate):
+def update_todo(todo_id: int, payload: TodoUpdate):
+    changes = payload.model_dump(exclude_unset=True)
+    if "status" in changes and changes["status"] is None:
+        raise HTTPException(status_code=422, detail="Status cannot be null")
     raw = load_list("todos")
     
     for item in raw:
         if item["id"] == todo_id:
-            item["status"] = payload.status
-            save_list("todos", raw)
+            item.update(changes)
+            if changes:
+                save_list("todos", raw)
             return TodoItem(**item)
         
     raise HTTPException(status_code=404, detail="Todo not found")

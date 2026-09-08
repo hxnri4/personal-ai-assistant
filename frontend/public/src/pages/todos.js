@@ -145,8 +145,10 @@ export default function todosView() {
       </header>
       <div class="todo-detail-labels" id="todo-detail-labels" hidden></div>
       <section class="todo-detail-description">
-        <h3>Description</h3>
-        <p id="todo-detail-description"></p>
+        <h3><label for="todo-detail-description">Description</label></h3>
+        <textarea id="todo-detail-description" rows="8" placeholder="Add a description…" aria-describedby="todo-description-message"></textarea>
+        <button type="button" class="todo-secondary-btn todo-description-save" hidden>Save</button>
+        <p id="todo-description-message" role="status" aria-live="polite"></p>
       </section>
     </aside>
     </div>
@@ -159,7 +161,66 @@ export default function todosView() {
   const detailStatus = app.querySelector("#todo-detail-status");
   const detailLabels = app.querySelector("#todo-detail-labels");
   const detailDescription = app.querySelector("#todo-detail-description");
+  const descriptionSave = app.querySelector(".todo-description-save");
+  const descriptionMessage = app.querySelector("#todo-description-message");
+  // Keep unsaved drafts when switching tickets or closing the detail panel.
+  const descriptionDrafts = new Map();
+  const descriptionSaving = new Set();
+  const descriptionErrors = new Map();
+  let selectedTodo = null;
   let selectedId = null;
+
+  function refreshDescriptionEditor() {
+    const saving = descriptionSaving.has(selectedId);
+    descriptionSave.hidden = !descriptionDrafts.has(selectedId);
+    descriptionSave.disabled = saving;
+    descriptionSave.textContent = saving ? "Saving…" : "Save";
+    detailDescription.readOnly = saving;
+    detailDescription.setAttribute("aria-busy", String(saving));
+    descriptionMessage.textContent = descriptionErrors.get(selectedId) || "";
+  }
+
+  detailDescription.addEventListener("input", () => {
+    if (!selectedTodo) return;
+    if (detailDescription.value === (selectedTodo.description ?? "")) {
+      descriptionDrafts.delete(selectedId);
+    } else {
+      descriptionDrafts.set(selectedId, detailDescription.value);
+    }
+    descriptionErrors.delete(selectedId);
+    refreshDescriptionEditor();
+  });
+
+  descriptionSave.addEventListener("click", async () => {
+    const todo = selectedTodo;
+    if (!todo || !descriptionDrafts.has(todo.id) || descriptionSaving.has(todo.id)) return;
+    const description = descriptionDrafts.get(todo.id);
+    descriptionSaving.add(todo.id);
+    descriptionErrors.delete(todo.id);
+    refreshDescriptionEditor();
+    try {
+      const response = await fetch(`http://localhost:8000/todos/${todo.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const updated = await response.json();
+      todo.description = updated.description;
+      descriptionDrafts.delete(todo.id);
+      if (selectedId === todo.id) {
+        selectedTodo.description = updated.description;
+        detailDescription.value = updated.description ?? "";
+        detailDescription.blur();
+      }
+    } catch (error) {
+      console.error(error);
+      descriptionErrors.set(todo.id, "Could not save description. Your text is kept here. Please try again.");
+    } finally {
+      descriptionSaving.delete(todo.id);
+      if (selectedId === todo.id) refreshDescriptionEditor();
+    }
+  });
 
   function ticketLabels(todo) {
     return (Array.isArray(todo.labels) ? todo.labels : [todo.label])
@@ -176,6 +237,7 @@ export default function todosView() {
 
   function openDetails(todo) {
     selectedId = todo.id;
+    selectedTodo = todo;
     detailName.textContent = todo.name || "(Ohne Titel)";
     const statuses = { open: "Open", in_progress: "In Progress", done: "Done" };
     const status = Object.hasOwn(statuses, todo.status) ? todo.status : "open";
@@ -189,9 +251,8 @@ export default function todosView() {
       detailLabels.appendChild(pill);
     }
     detailLabels.hidden = !detailLabels.childElementCount;
-    const hasDescription = Boolean(todo.description?.trim());
-    detailDescription.textContent = hasDescription ? todo.description : "No description added.";
-    detailDescription.classList.toggle("is-empty", !hasDescription);
+    detailDescription.value = descriptionDrafts.get(todo.id) ?? todo.description ?? "";
+    refreshDescriptionEditor();
     detail.hidden = false;
     workspace.classList.add("has-detail");
     markSelectedCard();
@@ -203,6 +264,7 @@ export default function todosView() {
     detail.hidden = true;
     workspace.classList.remove("has-detail");
     selectedId = null;
+    selectedTodo = null;
     markSelectedCard();
     selectedCard?.focus({ preventScroll: true });
   }
@@ -295,7 +357,7 @@ export default function todosView() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const updated = await response.json();
-      Object.assign(todo, updated);
+      todo.status = updated.status;
       zone.body.appendChild(card);
       refreshCounts();
       if (selectedId === todo.id) openDetails(todo);
